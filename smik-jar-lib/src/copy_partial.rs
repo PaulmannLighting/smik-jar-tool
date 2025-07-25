@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::io::{Read, Seek, Write};
 use std::path::PathBuf;
 
-use log::{info, warn};
+use log::{debug, warn};
 use zip::result::ZipError;
 use zip::write::SimpleFileOptions;
 use zip::{ZipArchive, ZipWriter};
@@ -52,13 +52,13 @@ where
             }
 
             if entry.is_file() {
-                info!("Copying file: {}", entry.name());
+                debug!("Copying file: {}", entry.name());
                 file_buffer.clear();
                 entry.read_to_end(&mut file_buffer)?;
                 self.start_file(entry.name(), entry.options())?;
                 self.write_all(&file_buffer)?;
             } else if entry.is_dir() {
-                info!("Creating directory: {}", entry.name());
+                debug!("Creating directory: {}", entry.name());
                 self.add_directory(entry.name(), entry.options())?;
             } else {
                 warn!("Skipping unsupported entry: {}", entry.name());

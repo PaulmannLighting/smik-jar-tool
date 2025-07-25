@@ -1,6 +1,7 @@
 //! CLI tool for managing SMIK JAR file versions.
 
 use std::fs::OpenOptions;
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
@@ -20,20 +21,35 @@ fn main() -> ExitCode {
     env_logger::init();
     let args = Args::parse();
 
-    let Ok(file) = OpenOptions::new()
+    let Ok(src) = OpenOptions::new()
         .read(true)
-        .write(true)
-        .open(args.jar_file)
+        .open(&args.jar_file)
         .inspect_err(|error| error!("Error opening file: {error}"))
     else {
         return ExitCode::FAILURE;
     };
 
-    let mut jar_file = JarFile::new(file);
+    let mut jar_file = JarFile::new(src);
 
     if let Some(version) = args.version {
-        if let Err(error) = jar_file.set_version(&version) {
-            error!("Error setting version: {error}");
+        let Ok(new_file) = jar_file
+            .set_version(&version)
+            .inspect_err(|error| error!("Error setting version: {error}"))
+        else {
+            return ExitCode::FAILURE;
+        };
+
+        let Ok(mut dst) = OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .open(&args.jar_file)
+            .inspect_err(|error| error!("Error opening file: {error}"))
+        else {
+            return ExitCode::FAILURE;
+        };
+
+        if let Err(error) = dst.write_all(&new_file) {
+            error!("Error writing to file: {error}");
             return ExitCode::FAILURE;
         }
     } else {

@@ -49,7 +49,7 @@ where
     /// # Errors
     ///
     /// Returns a [`JarError`] if the JAR file could not be written to or if the properties could not be read.
-    pub fn set_version(&mut self, version: &impl ToString) -> Result<(), JarError> {
+    pub fn set_version(&mut self, version: &impl ToString) -> Result<Vec<u8>, JarError> {
         let mut zip_archive = ZipArchive::new(&mut self.inner)?;
         let properties_files: Vec<String> = PROPERTIES_FILES
             .iter()
@@ -76,6 +76,6 @@ where
 
         zip_writer.add_files(properties, options)?;
         zip_writer.finish()?;
-        Ok(())
+        Ok(buffer)
     }
 }
