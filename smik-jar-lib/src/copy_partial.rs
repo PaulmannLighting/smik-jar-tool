@@ -30,12 +30,23 @@ pub trait CopyPartial {
     /// Replaces the contents of the given [`ZipArchive`] with the
     /// specified `application*.properties` files.
     fn replace<T>(
-        self,
+        &mut self,
         src: &mut ZipArchive<T>,
         properties: BTreeMap<PathBuf, HashMap<String, String>>,
     ) -> Result<(), JarError>
     where
-        T: Read + Seek;
+        T: Read + Seek,
+    {
+        let options = self.copy_partial(
+            src,
+            properties
+                .keys()
+                .filter_map(|path| path.to_str().map(ToOwned::to_owned))
+                .collect(),
+        )?;
+        self.add_files(properties, options)?;
+        Ok(())
+    }
 }
 
 impl<W> CopyPartial for ZipWriter<W>
@@ -93,26 +104,6 @@ where
             java_properties::write(&mut *self, &properties)?;
         }
 
-        Ok(())
-    }
-
-    fn replace<T>(
-        mut self,
-        src: &mut ZipArchive<T>,
-        properties: BTreeMap<PathBuf, HashMap<String, String>>,
-    ) -> Result<(), JarError>
-    where
-        T: Read + Seek,
-    {
-        let options = self.copy_partial(
-            src,
-            properties
-                .keys()
-                .filter_map(|path| path.to_str().map(ToOwned::to_owned))
-                .collect(),
-        )?;
-        self.add_files(properties, options)?;
-        self.finish()?;
         Ok(())
     }
 }

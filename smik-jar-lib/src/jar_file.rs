@@ -67,7 +67,9 @@ where
             properties.insert(SOFTWARE_VERSION.into(), version.to_string());
         }
 
-        ZipWriter::new(Cursor::new(&mut buffer)).replace(&mut zip_archive, properties)?;
+        let mut zip_writer = ZipWriter::new(Cursor::new(&mut buffer));
+        zip_writer.replace(&mut zip_archive, properties)?;
+        zip_writer.finish()?;
         Ok(buffer)
     }
 }
