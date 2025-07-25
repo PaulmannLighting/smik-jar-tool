@@ -2,7 +2,7 @@
 
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use clap::Parser;
@@ -21,9 +21,45 @@ fn main() -> ExitCode {
     env_logger::init();
     let args = Args::parse();
 
+    if let Some(version) = args.version {
+        replace_version(&args.jar_file, &version)
+    } else {
+        read_versions(&args.jar_file)
+    }
+}
+
+fn replace_version(jar_file: &Path, version: &str) -> ExitCode {
+    let Ok(mut src) = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .truncate(true)
+        .open(jar_file)
+        .inspect_err(|error| error!("Error opening file: {error}"))
+    else {
+        return ExitCode::FAILURE;
+    };
+
+    let mut jar_file = JarFile::new(&mut src);
+
+    let Ok(new_file) = jar_file
+        .set_version(&version)
+        .inspect_err(|error| error!("Error setting version: {error}"))
+    else {
+        return ExitCode::FAILURE;
+    };
+
+    if let Err(error) = src.write_all(&new_file) {
+        error!("Error writing to file: {error}");
+        return ExitCode::FAILURE;
+    }
+
+    ExitCode::SUCCESS
+}
+
+fn read_versions(jar_file: &Path) -> ExitCode {
     let Ok(src) = OpenOptions::new()
         .read(true)
-        .open(&args.jar_file)
+        .open(jar_file)
         .inspect_err(|error| error!("Error opening file: {error}"))
     else {
         return ExitCode::FAILURE;
@@ -31,41 +67,18 @@ fn main() -> ExitCode {
 
     let mut jar_file = JarFile::new(src);
 
-    if let Some(version) = args.version {
-        let Ok(new_file) = jar_file
-            .set_version(&version)
-            .inspect_err(|error| error!("Error setting version: {error}"))
-        else {
-            return ExitCode::FAILURE;
-        };
+    let Ok(versions) = jar_file
+        .versions()
+        .inspect_err(|error| error!("Error reading versions: {error}"))
+    else {
+        return ExitCode::FAILURE;
+    };
 
-        let Ok(mut dst) = OpenOptions::new()
-            .write(true)
-            .truncate(true)
-            .open(&args.jar_file)
-            .inspect_err(|error| error!("Error opening file: {error}"))
-        else {
-            return ExitCode::FAILURE;
-        };
-
-        if let Err(error) = dst.write_all(&new_file) {
-            error!("Error writing to file: {error}");
-            return ExitCode::FAILURE;
-        }
-    } else {
-        let Ok(versions) = jar_file
-            .versions()
-            .inspect_err(|error| error!("Error reading versions: {error}"))
-        else {
-            return ExitCode::FAILURE;
-        };
-
-        for (path, version) in versions {
-            if let Some(version) = version {
-                println!("{}: {version}", path.display());
-            } else {
-                error!("{} does not have a version", path.display());
-            }
+    for (path, version) in versions {
+        if let Some(version) = version {
+            println!("{}: {version}", path.display());
+        } else {
+            error!("{} does not have a version", path.display());
         }
     }
 
