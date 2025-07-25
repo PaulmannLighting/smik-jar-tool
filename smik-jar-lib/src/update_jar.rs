@@ -9,7 +9,7 @@ use zip::{ZipArchive, ZipWriter};
 
 use crate::JarError;
 
-pub trait CopyPartial {
+pub trait UpdateJar {
     /// Copies the specified the files from the given [`ZipArchive`] into `self`,
     /// except for the files listed in `exclude`.
     fn copy_partial<T>(
@@ -49,7 +49,7 @@ pub trait CopyPartial {
     }
 }
 
-impl<W> CopyPartial for ZipWriter<W>
+impl<W> UpdateJar for ZipWriter<W>
 where
     W: Write + Seek,
 {

@@ -6,7 +6,7 @@ use log::info;
 use zip::result::ZipResult;
 use zip::{ZipArchive, ZipWriter};
 
-use crate::copy_partial::CopyPartial;
+use crate::update_jar::UpdateJar;
 use crate::{JarError, ReadVersion, SOFTWARE_VERSION};
 
 /// API to a JAR file.
