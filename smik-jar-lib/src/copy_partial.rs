@@ -47,6 +47,7 @@ where
             let mut entry = src.by_name(&file)?;
 
             if exclude.contains(&file) {
+                debug!("Excluding file: {file}");
                 options.insert(PathBuf::from(file), entry.options());
                 continue;
             }
