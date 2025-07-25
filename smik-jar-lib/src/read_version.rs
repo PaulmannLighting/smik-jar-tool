@@ -14,41 +14,11 @@ pub trait ReadVersion<T> {
     fn properties_files(&mut self) -> EntriesMut<'_, T>;
 
     /// Returns the JAR file's properties files as a map of path to properties.
-    fn get_properties(&mut self) -> BTreeMap<PathBuf, HashMap<String, String>>
-    where
-        T: Read + Seek,
-    {
-        let mut zip_files = self.properties_files();
-        let mut properties_files = BTreeMap::new();
-
-        while let Some((path, zip_file)) = zip_files.next() {
-            let Ok(entry) = zip_file.inspect_err(|error| {
-                warn!(
-                    "Error while reading file {} from ZIP archive: {error}",
-                    path.display()
-                );
-            }) else {
-                continue;
-            };
-
-            let Ok(properties) = java_properties::read(entry)
-                .inspect_err(|error| error!("Error parsing properties: {error}"))
-            else {
-                continue;
-            };
-
-            properties_files.insert(path, properties);
-        }
-
-        properties_files
-    }
+    fn get_properties(&mut self) -> BTreeMap<PathBuf, HashMap<String, String>>;
 
     /// Returns a map of the properties files' names and versions stored therein.
     #[must_use]
-    fn versions(&mut self) -> BTreeMap<PathBuf, Option<String>>
-    where
-        T: Read + Seek,
-    {
+    fn versions(&mut self) -> BTreeMap<PathBuf, Option<String>> {
         self.get_properties()
             .into_iter()
             .map(|(path, properties)| {
@@ -79,5 +49,31 @@ where
             .collect();
 
         EntriesMut::new(self, file_names)
+    }
+
+    fn get_properties(&mut self) -> BTreeMap<PathBuf, HashMap<String, String>> {
+        let mut zip_files = self.properties_files();
+        let mut properties_files = BTreeMap::new();
+
+        while let Some((path, zip_file)) = zip_files.next() {
+            let Ok(entry) = zip_file.inspect_err(|error| {
+                warn!(
+                    "Error while reading file {} from ZIP archive: {error}",
+                    path.display()
+                );
+            }) else {
+                continue;
+            };
+
+            let Ok(properties) = java_properties::read(entry)
+                .inspect_err(|error| error!("Error parsing properties: {error}"))
+            else {
+                continue;
+            };
+
+            properties_files.insert(path, properties);
+        }
+
+        properties_files
     }
 }

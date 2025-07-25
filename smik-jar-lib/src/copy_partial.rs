@@ -35,7 +35,6 @@ pub trait CopyPartial {
         properties: BTreeMap<PathBuf, HashMap<String, String>>,
     ) -> Result<(), JarError>
     where
-        Self: Sized,
         T: Read + Seek;
 }
 
