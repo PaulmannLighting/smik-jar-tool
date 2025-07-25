@@ -19,7 +19,7 @@ impl<'a, T> EntriesMut<'a, T> {
     }
 }
 
-impl<'a, T> EntriesMut<'a, T>
+impl<T> EntriesMut<'_, T>
 where
     T: Read + Seek,
 {

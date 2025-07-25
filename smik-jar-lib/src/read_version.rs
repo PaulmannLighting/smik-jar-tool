@@ -1,7 +1,7 @@
-use crate::{BOOT_INF_CLASSES, EntriesMut};
+use crate::{BOOT_INF_CLASSES, EntriesMut, SOFTWARE_VERSION};
 use log::{error, warn};
 use semver::Version;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::io::{Read, Seek};
 use std::path::{Path, PathBuf};
 use zip::ZipArchive;
@@ -20,6 +20,36 @@ pub trait ReadVersion<T> {
     #[must_use]
     fn properties_files(&mut self) -> EntriesMut<'_, T>;
 
+    /// Returns the JAR file's properties files as a map of path to properties.
+    fn get_properties(&mut self) -> BTreeMap<PathBuf, HashMap<String, String>>
+    where
+        T: Read + Seek,
+    {
+        let mut zip_files = self.properties_files();
+        let mut properties_files = BTreeMap::new();
+
+        while let Some((path, zip_file)) = zip_files.next() {
+            let Ok(entry) = zip_file.inspect_err(|error| {
+                warn!(
+                    "Error while reading file {} from ZIP archive: {error}",
+                    path.display()
+                );
+            }) else {
+                continue;
+            };
+
+            let Ok(properties) = java_properties::read(entry)
+                .inspect_err(|error| error!("Error parsing properties: {error}"))
+            else {
+                continue;
+            };
+
+            properties_files.insert(path, properties);
+        }
+
+        properties_files
+    }
+
     /// Returns the JAR file's version.
     ///
     /// # Errors
@@ -29,14 +59,20 @@ pub trait ReadVersion<T> {
     where
         T: Read + Seek,
     {
-        let mut versions = BTreeMap::new();
-        let mut properties_files = self.properties_files();
-
-        while let Some((path, version)) = next_properties_file(&mut properties_files) {
-            versions.insert(path.clone(), version.clone());
-        }
-
-        versions
+        self.get_properties()
+            .into_iter()
+            .filter_map(|(path, properties)| {
+                properties
+                    .get(SOFTWARE_VERSION)
+                    .map(|version_string| (path, version_string))
+                    .and_then(|(path, version)| {
+                        Version::parse(version)
+                            .inspect_err(|error| error!("Invalid version: {error}"))
+                            .ok()
+                            .map(|version| (path, version))
+                    })
+            })
+            .collect()
     }
 }
 
@@ -58,39 +94,4 @@ where
 
         EntriesMut::new(self, file_names)
     }
-}
-
-fn next_properties_file<T>(properties_files: &mut EntriesMut<'_, T>) -> Option<(PathBuf, Version)>
-where
-    T: Read + Seek,
-{
-    let (path, properties_file) = properties_files.next()?;
-
-    let Ok(entry) = properties_file.inspect_err(|error| {
-        warn!(
-            "Error while reading file {} from ZIP archive: {error}",
-            path.display()
-        );
-    }) else {
-        return None;
-    };
-
-    let Ok(properties) = java_properties::read(entry)
-        .inspect_err(|error| error!("Error parsing properties: {error}"))
-    else {
-        return None;
-    };
-
-    let Some(version) = properties.get("softwareVersion") else {
-        error!("Missing softwareVersion in JAR file: {}", path.display());
-        return None;
-    };
-
-    let Ok(version) = Version::parse(version)
-        .inspect_err(|error| error!("Error parsing version {version}: {error}"))
-    else {
-        return None;
-    };
-
-    Some((path, version))
 }

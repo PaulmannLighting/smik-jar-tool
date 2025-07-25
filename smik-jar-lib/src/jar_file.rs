@@ -1,10 +1,12 @@
-use crate::ReadVersion;
+use crate::{JarError, ReadVersion, SOFTWARE_VERSION};
+use log::info;
 use semver::Version;
 use std::collections::BTreeMap;
-use std::io::{Read, Seek};
+use std::io::{Read, Seek, Write};
 use std::path::PathBuf;
-use zip::ZipArchive;
 use zip::result::ZipResult;
+use zip::write::SimpleFileOptions;
+use zip::{ZipArchive, ZipWriter};
 
 /// API to a JAR file.
 pub struct JarFile<T> {
@@ -34,5 +36,37 @@ where
     /// Returns a [`ZipError`](zip::result::ZipError) if the JAR file could not be read.
     pub fn versions(&mut self) -> ZipResult<BTreeMap<PathBuf, Version>> {
         ZipArchive::new(&mut self.inner).map(|mut zip_archive| zip_archive.versions())
+    }
+}
+
+impl<T> JarFile<T>
+where
+    T: Write + Read + Seek,
+{
+    /// Set the version in the JAR file's properties files.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`JarError`] if the JAR file could not be written to or if the properties could not be read.
+    pub fn set_version(&mut self, version: &Version) -> Result<(), JarError> {
+        let properties =
+            ZipArchive::new(&mut self.inner).map(|mut zip_archive| zip_archive.get_properties())?;
+        let mut zip_writer = ZipWriter::new_append(&mut self.inner)?;
+        let options = SimpleFileOptions::default();
+
+        for (path, properties) in properties {
+            if let Some(current_version) = properties.get(SOFTWARE_VERSION) {
+                info!(
+                    "Updating version in {}: {current_version} -> {version}",
+                    path.display()
+                );
+            }
+
+            zip_writer.start_file(path.to_string_lossy(), options)?;
+            java_properties::write(&mut zip_writer, &properties)?;
+        }
+
+        zip_writer.finish()?;
+        Ok(())
     }
 }
