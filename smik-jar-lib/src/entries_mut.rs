@@ -31,8 +31,8 @@ where
     /// _lending iterator_ and thus cannot be implemented as an [`Iterator`].
     pub fn next(&mut self) -> Option<(PathBuf, ZipResult<ZipFile<'_, T>>)> {
         let path = self.file_names.next()?;
-        let file_name = path.as_os_str().to_str()?;
-        let zip_result = self.zip_archive.by_name(file_name);
+        let file_name = path.to_string_lossy();
+        let zip_result = self.zip_archive.by_name(&file_name);
         Some((path, zip_result))
     }
 }
