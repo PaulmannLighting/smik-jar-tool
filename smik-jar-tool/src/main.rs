@@ -1,7 +1,7 @@
 //! CLI tool for managing smik JAR file versions.
 
 use std::fs::OpenOptions;
-use std::io::Write;
+use std::io::{Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -32,7 +32,6 @@ fn replace_version(jar_file: &Path, version: &str) -> ExitCode {
     let Ok(mut src) = OpenOptions::new()
         .read(true)
         .write(true)
-        .truncate(true)
         .open(jar_file)
         .inspect_err(|error| error!("Error opening file: {error}"))
     else {
@@ -47,6 +46,11 @@ fn replace_version(jar_file: &Path, version: &str) -> ExitCode {
     else {
         return ExitCode::FAILURE;
     };
+
+    if let Err(error) = src.seek(SeekFrom::Start(0)) {
+        error!("Error seeking to start of file: {error}");
+        return ExitCode::FAILURE;
+    }
 
     if let Err(error) = src.write_all(&new_file) {
         error!("Error writing to file: {error}");
