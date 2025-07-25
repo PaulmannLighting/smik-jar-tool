@@ -1,12 +1,14 @@
-use crate::{JarError, ReadVersion, SOFTWARE_VERSION};
-use log::info;
-use semver::Version;
 use std::collections::BTreeMap;
 use std::io::{Read, Seek, Write};
 use std::path::PathBuf;
+
+use log::info;
+use semver::Version;
 use zip::result::ZipResult;
 use zip::write::SimpleFileOptions;
 use zip::{ZipArchive, ZipWriter};
+
+use crate::{JarError, ReadVersion, SOFTWARE_VERSION};
 
 /// API to a JAR file.
 pub struct JarFile<T> {

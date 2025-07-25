@@ -1,5 +1,6 @@
-use java_properties::PropertiesError;
 use std::fmt::Display;
+
+use java_properties::PropertiesError;
 
 /// Error type for the JAR library.
 #[derive(Debug)]

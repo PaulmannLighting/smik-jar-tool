@@ -1,10 +1,12 @@
-use crate::{BOOT_INF_CLASSES, EntriesMut, SOFTWARE_VERSION};
-use log::{error, warn};
-use semver::Version;
 use std::collections::{BTreeMap, HashMap};
 use std::io::{Read, Seek};
 use std::path::{Path, PathBuf};
+
+use log::{error, warn};
+use semver::Version;
 use zip::ZipArchive;
+
+use crate::{BOOT_INF_CLASSES, EntriesMut, SOFTWARE_VERSION};
 
 const PROPERTIES_FILES: [&str; 5] = [
     "application.properties",
