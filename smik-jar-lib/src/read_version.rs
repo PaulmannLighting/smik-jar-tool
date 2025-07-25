@@ -9,7 +9,7 @@ use crate::{BOOT_INF_CLASSES, EntriesMut, PROPERTIES_FILES, SOFTWARE_VERSION};
 
 /// Extension trait to represent a JAR file.
 pub trait ReadVersion<T> {
-    /// Returns an iterator over the JAR file's properties files.
+    /// Returns an iterator over the JAR's `application*.properties` files.
     #[must_use]
     fn properties_files(&mut self) -> EntriesMut<'_, T>;
 
@@ -43,10 +43,7 @@ pub trait ReadVersion<T> {
         properties_files
     }
 
-    /// Returns the JAR file's version.
-    ///
-    /// # Errors
-    /// This function will return `None` if the JAR file's version could not be parsed.
+    /// Returns a map of the properties files' names and versions stored therein.
     #[must_use]
     fn versions(&mut self) -> BTreeMap<PathBuf, Option<String>>
     where
@@ -68,6 +65,7 @@ impl<T> ReadVersion<T> for ZipArchive<T>
 where
     T: Read + Seek,
 {
+    /// Returns an iterator over the JAR file's properties files.
     fn properties_files(&mut self) -> EntriesMut<'_, T> {
         let file_names = PROPERTIES_FILES
             .iter()

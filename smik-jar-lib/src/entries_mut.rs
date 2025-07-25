@@ -6,6 +6,7 @@ use zip::ZipArchive;
 use zip::read::ZipFile;
 use zip::result::ZipResult;
 
+/// A _lending iterator_ over the entries in a ZIP archive.
 pub struct EntriesMut<'a, T> {
     zip_archive: &'a mut ZipArchive<T>,
     file_names: IntoIter<PathBuf>,
@@ -24,6 +25,10 @@ impl<T> EntriesMut<'_, T>
 where
     T: Read + Seek,
 {
+    /// Return the next entry in the ZIP archive.
+    ///
+    /// Since [`ZipFile`] needs a lifetime related to the borrow of `self`, this constitutes a
+    /// _lending iterator_ and thus cannot be implemented as an [`Iterator`].
     pub fn next(&mut self) -> Option<(PathBuf, ZipResult<ZipFile<'_, T>>)> {
         let path = self.file_names.next()?;
         let file_name = path.as_os_str().to_str()?;

@@ -10,7 +10,8 @@ use zip::{ZipArchive, ZipWriter};
 use crate::JarError;
 
 pub trait CopyPartial {
-    /// Copies the specified properties files from the JAR archive to a new buffer.
+    /// Copies the specified the files from the given [`ZipArchive`] into `self`,
+    /// except for the files listed in `exclude`.
     fn copy_partial<T>(
         &mut self,
         src: &mut ZipArchive<T>,
@@ -19,14 +20,15 @@ pub trait CopyPartial {
     where
         T: Read + Seek;
 
-    /// Adds a file with the specified properties to the JAR archive.
+    /// Adds the given `application*.properties` files with their respective `options` to `self`.
     fn add_files(
         &mut self,
         properties: BTreeMap<PathBuf, HashMap<String, String>>,
         options: BTreeMap<PathBuf, SimpleFileOptions>,
     ) -> Result<(), JarError>;
 
-    /// Replaces the contents of the JAR archive with the specified properties files.
+    /// Replaces the contents of the given [`ZipArchive`] with the
+    /// specified `application*.properties` files.
     fn replace<T>(
         self,
         src: &mut ZipArchive<T>,
