@@ -2,6 +2,7 @@
 name = "smik-jar-lib"
 version = "0.1.0"
 edition = "2024"
+publish = false
 
 [dependencies]
 java-properties = "2.0"
