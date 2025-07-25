@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-java-properties = "2.0.0"
-log = "0.4.27"
-semver = "1.0.26"
-zip = "4.3.0"
+java-properties = "2.0"
+log = "0.4"
+semver = "1.0"
+zip = "4.3"
 
 [lints]
 workspace = true
