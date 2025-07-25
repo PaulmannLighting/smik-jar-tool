@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 java-properties = "2.0"
 log = "0.4"
-semver = "1.0"
 zip = "4.3"
 
 [lints]

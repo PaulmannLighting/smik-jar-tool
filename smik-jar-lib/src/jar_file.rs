@@ -3,7 +3,6 @@ use std::io::{Read, Seek, Write};
 use std::path::PathBuf;
 
 use log::info;
-use semver::Version;
 use zip::result::ZipResult;
 use zip::write::SimpleFileOptions;
 use zip::{ZipArchive, ZipWriter};
@@ -36,7 +35,7 @@ where
     /// # Errors
     ///
     /// Returns a [`ZipError`](zip::result::ZipError) if the JAR file could not be read.
-    pub fn versions(&mut self) -> ZipResult<BTreeMap<PathBuf, Version>> {
+    pub fn versions(&mut self) -> ZipResult<BTreeMap<PathBuf, Option<String>>> {
         ZipArchive::new(&mut self.inner).map(|mut zip_archive| zip_archive.versions())
     }
 }
@@ -50,20 +49,22 @@ where
     /// # Errors
     ///
     /// Returns a [`JarError`] if the JAR file could not be written to or if the properties could not be read.
-    pub fn set_version(&mut self, version: &Version) -> Result<(), JarError> {
+    pub fn set_version(&mut self, version: &impl ToString) -> Result<(), JarError> {
         let properties =
             ZipArchive::new(&mut self.inner).map(|mut zip_archive| zip_archive.get_properties())?;
         let mut zip_writer = ZipWriter::new_append(&mut self.inner)?;
         let options = SimpleFileOptions::default();
 
-        for (path, properties) in properties {
+        for (path, mut properties) in properties {
             if let Some(current_version) = properties.get(SOFTWARE_VERSION) {
                 info!(
-                    "Updating version in {}: {current_version} -> {version}",
-                    path.display()
+                    "Updating version in {}: {current_version} -> {}",
+                    path.display(),
+                    version.to_string()
                 );
             }
 
+            properties.insert(SOFTWARE_VERSION.into(), version.to_string());
             zip_writer.start_file(path.to_string_lossy(), options)?;
             java_properties::write(&mut zip_writer, &properties)?;
         }

@@ -3,7 +3,6 @@ use std::io::{Read, Seek};
 use std::path::{Path, PathBuf};
 
 use log::{error, warn};
-use semver::Version;
 use zip::ZipArchive;
 
 use crate::{BOOT_INF_CLASSES, EntriesMut, SOFTWARE_VERSION};
@@ -57,22 +56,17 @@ pub trait ReadVersion<T> {
     /// # Errors
     /// This function will return `None` if the JAR file's version could not be parsed.
     #[must_use]
-    fn versions(&mut self) -> BTreeMap<PathBuf, Version>
+    fn versions(&mut self) -> BTreeMap<PathBuf, Option<String>>
     where
         T: Read + Seek,
     {
         self.get_properties()
             .into_iter()
-            .filter_map(|(path, properties)| {
-                properties
-                    .get(SOFTWARE_VERSION)
-                    .map(|version_string| (path, version_string))
-                    .and_then(|(path, version)| {
-                        Version::parse(version)
-                            .inspect_err(|error| error!("Invalid version: {error}"))
-                            .ok()
-                            .map(|version| (path, version))
-                    })
+            .map(|(path, properties)| {
+                (
+                    path,
+                    properties.get(SOFTWARE_VERSION).map(ToString::to_string),
+                )
             })
             .collect()
     }

@@ -6,7 +6,6 @@ use std::process::ExitCode;
 
 use clap::Parser;
 use log::error;
-use semver::Version;
 use smik_jar_lib::JarFile;
 
 #[derive(Debug, Parser)]
@@ -14,10 +13,11 @@ struct Args {
     #[clap(index = 1, help = "Path to the JAR file")]
     jar_file: PathBuf,
     #[clap(long, short, help = "The version to set in the JAR file")]
-    version: Option<Version>,
+    version: Option<String>,
 }
 
 fn main() -> ExitCode {
+    env_logger::init();
     let args = Args::parse();
 
     let Ok(file) = OpenOptions::new()
@@ -35,7 +35,7 @@ fn main() -> ExitCode {
         if let Err(error) = jar_file.set_version(&version) {
             error!("Error setting version: {error}");
             return ExitCode::FAILURE;
-        };
+        }
     } else {
         let Ok(versions) = jar_file
             .versions()
@@ -45,7 +45,11 @@ fn main() -> ExitCode {
         };
 
         for (path, version) in versions {
-            println!("{}: {version}", path.display());
+            if let Some(version) = version {
+                println!("{}: {version}", path.display());
+            } else {
+                error!("{} does not have a version", path.display());
+            }
         }
     }
 
