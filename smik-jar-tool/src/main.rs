@@ -1,4 +1,4 @@
-//! CLI tool for managing SMIK JAR file versions.
+//! CLI tool for managing smik JAR file versions.
 
 use std::fs::OpenOptions;
 use std::io::Write;
