@@ -1,13 +1,13 @@
 use std::collections::BTreeMap;
-use std::io::{Read, Seek, Write};
-use std::path::PathBuf;
+use std::io::{Cursor, Read, Seek, Write};
+use std::path::{Path, PathBuf};
 
 use log::info;
 use zip::result::ZipResult;
-use zip::write::SimpleFileOptions;
 use zip::{ZipArchive, ZipWriter};
 
-use crate::{JarError, ReadVersion, SOFTWARE_VERSION};
+use crate::copy_partial::CopyPartial;
+use crate::{BOOT_INF_CLASSES, JarError, PROPERTIES_FILES, ReadVersion, SOFTWARE_VERSION};
 
 /// API to a JAR file.
 pub struct JarFile<T> {
@@ -50,12 +50,19 @@ where
     ///
     /// Returns a [`JarError`] if the JAR file could not be written to or if the properties could not be read.
     pub fn set_version(&mut self, version: &impl ToString) -> Result<(), JarError> {
-        let properties =
-            ZipArchive::new(&mut self.inner).map(|mut zip_archive| zip_archive.get_properties())?;
-        let mut zip_writer = ZipWriter::new_append(&mut self.inner)?;
-        let options = SimpleFileOptions::default();
+        let mut zip_archive = ZipArchive::new(&mut self.inner)?;
+        let properties_files: Vec<String> = PROPERTIES_FILES
+            .iter()
+            .map(|file_name| Path::new(BOOT_INF_CLASSES).join(file_name))
+            .filter_map(|path| path.to_str().map(ToOwned::to_owned))
+            .collect();
+        let mut buffer: Vec<u8> = Vec::new();
 
-        for (path, mut properties) in properties {
+        let mut properties = zip_archive.get_properties();
+        let mut zip_writer = ZipWriter::new(Cursor::new(&mut buffer));
+        let options = zip_writer.copy_partial(&mut zip_archive, properties_files)?;
+
+        for (path, properties) in &mut properties {
             if let Some(current_version) = properties.get(SOFTWARE_VERSION) {
                 info!(
                     "Updating version in {}: {current_version} -> {}",
@@ -65,10 +72,9 @@ where
             }
 
             properties.insert(SOFTWARE_VERSION.into(), version.to_string());
-            zip_writer.start_file(path.to_string_lossy(), options)?;
-            java_properties::write(&mut zip_writer, &properties)?;
         }
 
+        zip_writer.add_files(properties, options)?;
         zip_writer.finish()?;
         Ok(())
     }

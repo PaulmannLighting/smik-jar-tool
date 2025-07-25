@@ -5,15 +5,7 @@ use std::path::{Path, PathBuf};
 use log::{error, warn};
 use zip::ZipArchive;
 
-use crate::{BOOT_INF_CLASSES, EntriesMut, SOFTWARE_VERSION};
-
-const PROPERTIES_FILES: [&str; 5] = [
-    "application.properties",
-    "application-dev.properties",
-    "application-int.properties",
-    "application-local.properties",
-    "application-prod.properties",
-];
+use crate::{BOOT_INF_CLASSES, EntriesMut, PROPERTIES_FILES, SOFTWARE_VERSION};
 
 /// Extension trait to represent a JAR file.
 pub trait ReadVersion<T> {
