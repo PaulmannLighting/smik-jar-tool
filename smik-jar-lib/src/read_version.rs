@@ -14,6 +14,7 @@ pub trait ReadVersion<T> {
     fn properties_files(&mut self) -> EntriesMut<'_, T>;
 
     /// Returns the JAR file's properties files as a map of path to properties.
+    #[must_use]
     fn get_properties(&mut self) -> BTreeMap<PathBuf, HashMap<String, String>>;
 
     /// Returns a map of the properties files' names and versions stored therein.
