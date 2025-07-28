@@ -1,14 +1,16 @@
 use std::fmt::Display;
+use std::io;
 
 use java_properties::PropertiesError;
+use zip::result::ZipError;
 
 /// Error type for the JAR library.
 #[derive(Debug)]
 pub enum JarError {
     /// And I/O error occurred.
-    Io(std::io::Error),
+    Io(io::Error),
     /// An error occurred while reading or writing the ZIP archive.
-    Zip(zip::result::ZipError),
+    Zip(ZipError),
     /// An error occurred while parsing Java properties.
     JavaProperties(PropertiesError),
 }
@@ -33,14 +35,14 @@ impl std::error::Error for JarError {
     }
 }
 
-impl From<std::io::Error> for JarError {
-    fn from(error: std::io::Error) -> Self {
+impl From<io::Error> for JarError {
+    fn from(error: io::Error) -> Self {
         Self::Io(error)
     }
 }
 
-impl From<zip::result::ZipError> for JarError {
-    fn from(error: zip::result::ZipError) -> Self {
+impl From<ZipError> for JarError {
+    fn from(error: ZipError) -> Self {
         Self::Zip(error)
     }
 }
