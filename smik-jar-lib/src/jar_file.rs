@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::io::{Cursor, Read, Seek, Write};
 use std::path::PathBuf;
 
-use log::info;
+use log::{info, warn};
 use zip::result::ZipResult;
 use zip::{ZipArchive, ZipWriter};
 
@@ -59,6 +59,12 @@ where
             if let Some(current_version) = properties.get(SOFTWARE_VERSION) {
                 info!(
                     "Updating version in {}: {current_version} -> {}",
+                    path.display(),
+                    version.to_string()
+                );
+            } else {
+                warn!(
+                    "No version found in {}. Adding version: {}",
                     path.display(),
                     version.to_string()
                 );
