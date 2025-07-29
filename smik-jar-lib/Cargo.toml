@@ -10,7 +10,7 @@ publish = false
 [dependencies]
 java-properties = "2.0"
 log = "0.4"
-zip = { version = "4.3", no-default-features = true, features = ["deflate"] }
+zip = { version = "4.3", default-features = false, features = ["deflate"] }
 
 [lints]
 workspace = true
