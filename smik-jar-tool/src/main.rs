@@ -63,6 +63,8 @@ fn replace_version(src: File, version: &str, dst: &Path) -> ExitCode {
         return ExitCode::FAILURE;
     };
 
+    drop(jar_file);
+
     let Ok(mut dst) = OpenOptions::new()
         .read(true)
         .write(true)
