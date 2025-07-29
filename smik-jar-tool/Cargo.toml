@@ -3,7 +3,7 @@ name = "smik-jar-tool"
 description = "A command-line tool for managing versions of smik JAR files."
 authors = ["Richard Neumann <neumann@paulmann.de>"]
 license = "MIT"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 publish = false
 
