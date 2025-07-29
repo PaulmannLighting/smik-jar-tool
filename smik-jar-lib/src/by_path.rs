@@ -23,7 +23,7 @@ where
     where
         T: AsRef<Path>,
     {
-        self.index_for_path(path.as_ref())
+        self.index_for_path(path)
             .ok_or(ZipError::FileNotFound)
             .and_then(|index| self.by_index(index))
     }
