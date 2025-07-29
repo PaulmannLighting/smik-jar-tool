@@ -41,9 +41,18 @@ where
         let file_names = PROPERTIES_FILES
             .iter()
             .map(|properties_file| Path::new(BOOT_INF_CLASSES).join(properties_file))
-            .filter_map(|path| path.to_str().map(ToOwned::to_owned))
+            .filter_map(|path| {
+                path.to_str().map(ToOwned::to_owned).map_or_else(
+                    || {
+                        error!("Invalid UTF-8 in properties file path: {}", path.display());
+                        None
+                    },
+                    Some,
+                )
+            })
             .filter_map(|file_name| {
                 self.by_name(&file_name)
+                    .inspect_err(|error| warn!("Missing file {file_name} in ZIP archive: {error}"))
                     .ok()
                     .map(|_| PathBuf::from(file_name))
             })
