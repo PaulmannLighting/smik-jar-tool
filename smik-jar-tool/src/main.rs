@@ -1,11 +1,11 @@
 //! CLI tool for managing smik JAR file versions.
 
-use std::fs::{File, OpenOptions};
+use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use clap::{Parser, Subcommand};
+use clap::Parser;
 use log::error;
 use smik_jar_lib::JarFile;
 
@@ -18,42 +18,31 @@ use smik_jar_lib::JarFile;
 )]
 struct Args {
     #[clap(index = 1, help = "Path to the JAR file")]
-    src: PathBuf,
-    #[clap(subcommand)]
-    action: Action,
-}
-
-#[derive(Debug, Subcommand)]
-enum Action {
-    #[clap(name = "read", about = "Read versions from the JAR file")]
-    Read,
-    #[clap(name = "write", about = "Write versions to the JAR file")]
-    Write {
-        #[clap(index = 1, help = "The version to set in the JAR file")]
-        version: String,
-        #[clap(index = 2, help = "The destination JAR file")]
-        dst: PathBuf,
-    },
+    jar_file: PathBuf,
+    #[clap(index = 2, help = "The version to set in the JAR file")]
+    version: Option<String>,
 }
 
 fn main() -> ExitCode {
     env_logger::init();
     let args = Args::parse();
+
+    if let Some(version) = args.version {
+        replace_version(&args.jar_file, &version)
+    } else {
+        read_versions(&args.jar_file)
+    }
+}
+
+fn replace_version(path: &Path, version: &str) -> ExitCode {
     let Ok(src) = OpenOptions::new()
         .read(true)
-        .open(args.src)
+        .open(path)
         .inspect_err(|error| error!("Error opening file: {error}"))
     else {
         return ExitCode::FAILURE;
     };
 
-    match args.action {
-        Action::Read => read_versions(src),
-        Action::Write { version, dst } => replace_version(src, &version, &dst),
-    }
-}
-
-fn replace_version(src: File, version: &str, dst: &Path) -> ExitCode {
     let mut jar_file = JarFile::new(src);
 
     let Ok(new_file) = jar_file
@@ -63,13 +52,14 @@ fn replace_version(src: File, version: &str, dst: &Path) -> ExitCode {
         return ExitCode::FAILURE;
     };
 
+    // Close the source file to ensure it is not blocked.
     drop(jar_file);
 
     let Ok(mut dst) = OpenOptions::new()
         .write(true)
         .create(true)
         .truncate(true)
-        .open(dst)
+        .open(path)
         .inspect_err(|error| error!("Error opening file: {error}"))
     else {
         return ExitCode::FAILURE;
@@ -83,7 +73,15 @@ fn replace_version(src: File, version: &str, dst: &Path) -> ExitCode {
     ExitCode::SUCCESS
 }
 
-fn read_versions(src: File) -> ExitCode {
+fn read_versions(path: &Path) -> ExitCode {
+    let Ok(src) = OpenOptions::new()
+        .read(true)
+        .open(path)
+        .inspect_err(|error| error!("Error opening file: {error}"))
+    else {
+        return ExitCode::FAILURE;
+    };
+
     let mut jar_file = JarFile::new(src);
 
     let Ok(versions) = jar_file
