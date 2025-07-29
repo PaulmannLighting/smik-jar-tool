@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use log::{error, warn};
 use zip::ZipArchive;
 
-use crate::{BOOT_INF_CLASSES, EntriesMut, PROPERTIES_FILES, SOFTWARE_VERSION};
+use crate::{BOOT_INF, CLASSES, EntriesMut, PROPERTIES_FILES, SOFTWARE_VERSION};
 
 /// Extension trait to represent a JAR file.
 pub trait ReadVersion<T> {
@@ -40,7 +40,11 @@ where
     fn properties_files(&mut self) -> EntriesMut<'_, T> {
         let file_names = PROPERTIES_FILES
             .iter()
-            .map(|properties_file| Path::new(BOOT_INF_CLASSES).join(properties_file))
+            .map(|properties_file| {
+                Path::new(BOOT_INF)
+                    .join(Path::new(CLASSES))
+                    .join(properties_file)
+            })
             .filter_map(|path| {
                 path.to_str().map(ToOwned::to_owned).map_or_else(
                     || {
