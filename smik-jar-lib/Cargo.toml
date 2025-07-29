@@ -1,5 +1,8 @@
 [package]
 name = "smik-jar-lib"
+description = "A library for managing versions of smik JAR files."
+authors = ["Richard Neumann <neumann@paulmann.de>"]
+license = "MIT"
 version = "0.1.0"
 edition = "2024"
 publish = false
