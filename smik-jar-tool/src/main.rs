@@ -66,8 +66,8 @@ fn replace_version(src: File, version: &str, dst: &Path) -> ExitCode {
     drop(jar_file);
 
     let Ok(mut dst) = OpenOptions::new()
-        .read(true)
         .write(true)
+        .create(true)
         .truncate(true)
         .open(dst)
         .inspect_err(|error| error!("Error opening file: {error}"))
