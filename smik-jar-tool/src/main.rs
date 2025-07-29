@@ -10,7 +10,12 @@ use log::error;
 use smik_jar_lib::JarFile;
 
 #[derive(Debug, Parser)]
-#[clap(version, about, author, long_about = None)]
+#[clap(
+    version,
+    about,
+    author,
+    long_about = "Tool to read and update the version in a JAR file."
+)]
 struct Args {
     #[clap(index = 1, help = "Path to the JAR file")]
     jar_file: PathBuf,
