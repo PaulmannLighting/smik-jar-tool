@@ -4,7 +4,8 @@ use std::vec::IntoIter;
 
 use zip::ZipArchive;
 use zip::read::ZipFile;
-use zip::result::ZipResult;
+
+use crate::JarError;
 
 /// A _lending iterator_ over the entries in a ZIP archive.
 pub struct EntriesMut<'a, T> {
@@ -29,10 +30,20 @@ where
     ///
     /// Since [`ZipFile`] needs a lifetime related to the borrow of `self`, this constitutes a
     /// _lending iterator_ and thus cannot be implemented as an [`Iterator`].
-    pub fn next(&mut self) -> Option<(PathBuf, ZipResult<ZipFile<'_, T>>)> {
+    pub fn next(&mut self) -> Option<(PathBuf, Result<ZipFile<'_, T>, JarError>)> {
         let path = self.file_names.next()?;
-        let file_name = path.to_string_lossy();
-        let zip_result = self.zip_archive.by_name(&file_name);
-        Some((path, zip_result))
+
+        let Some(file_name) = path.to_str() else {
+            return Some((path.clone(), Err(JarError::Utf8(path))));
+        };
+
+        let zip_result = self.zip_archive.by_name(file_name);
+        Some((
+            path,
+            match zip_result {
+                Ok(zip_file) => Ok(zip_file),
+                Err(error) => Err(JarError::Zip(error)),
+            },
+        ))
     }
 }

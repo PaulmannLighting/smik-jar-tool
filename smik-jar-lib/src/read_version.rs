@@ -84,6 +84,10 @@ where
             properties_files.insert(path, properties);
         }
 
+        if properties_files.is_empty() {
+            warn!("No properties files found in JAR archive.");
+        }
+
         properties_files
     }
 }
