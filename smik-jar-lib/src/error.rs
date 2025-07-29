@@ -14,8 +14,8 @@ pub enum JarError {
     Zip(ZipError),
     /// An error occurred while parsing Java properties.
     JavaProperties(PropertiesError),
-    /// A UTF-8 error occurred.
-    Utf8(PathBuf),
+    /// The specified file was not found within the ZIP file.
+    FileNotFound(PathBuf),
 }
 
 impl Display for JarError {
@@ -24,7 +24,7 @@ impl Display for JarError {
             Self::Io(error) => write!(f, "I/O error: {error}"),
             Self::Zip(error) => write!(f, "ZIP error: {error}"),
             Self::JavaProperties(error) => write!(f, "Error parsing Java properties: {error}"),
-            Self::Utf8(path) => write!(f, "UTF-8 error: {}", path.display()),
+            Self::FileNotFound(path) => write!(f, "UTF-8 error: {}", path.display()),
         }
     }
 }
@@ -35,7 +35,7 @@ impl std::error::Error for JarError {
             Self::Io(error) => Some(error),
             Self::Zip(error) => Some(error),
             Self::JavaProperties(error) => Some(error),
-            Self::Utf8(_) => None,
+            Self::FileNotFound(_) => None,
         }
     }
 }
@@ -60,6 +60,6 @@ impl From<PropertiesError> for JarError {
 
 impl From<PathBuf> for JarError {
     fn from(path: PathBuf) -> Self {
-        Self::Utf8(path)
+        Self::FileNotFound(path)
     }
 }

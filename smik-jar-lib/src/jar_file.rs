@@ -53,7 +53,7 @@ where
         let mut zip_archive = ZipArchive::new(&mut self.inner)?;
         let mut buffer: Vec<u8> = Vec::new();
 
-        let mut properties = zip_archive.get_properties();
+        let mut properties = zip_archive.properties();
 
         for (path, properties) in &mut properties {
             if let Some(current_version) = properties.get(SOFTWARE_VERSION) {
