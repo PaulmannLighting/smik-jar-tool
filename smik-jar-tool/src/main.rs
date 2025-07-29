@@ -1,11 +1,11 @@
 //! CLI tool for managing smik JAR file versions.
 
-use std::fs::OpenOptions;
-use std::io::{Seek, SeekFrom, Write};
+use std::fs::{File, OpenOptions};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use log::error;
 use smik_jar_lib::JarFile;
 
@@ -18,33 +18,43 @@ use smik_jar_lib::JarFile;
 )]
 struct Args {
     #[clap(index = 1, help = "Path to the JAR file")]
-    jar_file: PathBuf,
-    #[clap(long, short, help = "The version to set in the JAR file")]
-    version: Option<String>,
+    src: PathBuf,
+    #[clap(subcommand)]
+    action: Action,
+}
+
+#[derive(Debug, Subcommand)]
+enum Action {
+    #[clap(name = "read", about = "Read versions from the JAR file")]
+    Read,
+    #[clap(name = "write", about = "Write versions to the JAR file")]
+    Write {
+        #[clap(index = 1, help = "The version to set in the JAR file")]
+        version: String,
+        #[clap(index = 2, help = "The destination JAR file")]
+        dst: PathBuf,
+    },
 }
 
 fn main() -> ExitCode {
     env_logger::init();
     let args = Args::parse();
-
-    if let Some(version) = args.version {
-        replace_version(&args.jar_file, &version)
-    } else {
-        read_versions(&args.jar_file)
-    }
-}
-
-fn replace_version(jar_file: &Path, version: &str) -> ExitCode {
-    let Ok(mut src) = OpenOptions::new()
+    let Ok(src) = OpenOptions::new()
         .read(true)
-        .write(true)
-        .open(jar_file)
+        .open(args.src)
         .inspect_err(|error| error!("Error opening file: {error}"))
     else {
         return ExitCode::FAILURE;
     };
 
-    let mut jar_file = JarFile::new(&mut src);
+    match args.action {
+        Action::Read => read_versions(src),
+        Action::Write { version, dst } => replace_version(src, &version, &dst),
+    }
+}
+
+fn replace_version(src: File, version: &str, dst: &Path) -> ExitCode {
+    let mut jar_file = JarFile::new(src);
 
     let Ok(new_file) = jar_file
         .set_version(&version)
@@ -53,12 +63,17 @@ fn replace_version(jar_file: &Path, version: &str) -> ExitCode {
         return ExitCode::FAILURE;
     };
 
-    if let Err(error) = src.seek(SeekFrom::Start(0)) {
-        error!("Error seeking to start of file: {error}");
+    let Ok(mut dst) = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .truncate(true)
+        .open(dst)
+        .inspect_err(|error| error!("Error opening file: {error}"))
+    else {
         return ExitCode::FAILURE;
-    }
+    };
 
-    if let Err(error) = src.write_all(&new_file) {
+    if let Err(error) = dst.write_all(&new_file) {
         error!("Error writing to file: {error}");
         return ExitCode::FAILURE;
     }
@@ -66,15 +81,7 @@ fn replace_version(jar_file: &Path, version: &str) -> ExitCode {
     ExitCode::SUCCESS
 }
 
-fn read_versions(jar_file: &Path) -> ExitCode {
-    let Ok(src) = OpenOptions::new()
-        .read(true)
-        .open(jar_file)
-        .inspect_err(|error| error!("Error opening file: {error}"))
-    else {
-        return ExitCode::FAILURE;
-    };
-
+fn read_versions(src: File) -> ExitCode {
     let mut jar_file = JarFile::new(src);
 
     let Ok(versions) = jar_file
