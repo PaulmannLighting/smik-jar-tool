@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use log::{error, warn};
 use zip::ZipArchive;
 
-use crate::{BOOT_INF, CLASSES, EntriesMut, PROPERTIES_FILES, SOFTWARE_VERSION};
+use crate::{BOOT_INF, CLASSES, EntriesMut, PROPERTIES_FILES, SOFTWARE_VERSION, ZipFilePath};
 
 /// Extension trait to represent a JAR file.
 pub trait ReadVersion<T> {
@@ -46,7 +46,7 @@ where
                     .join(properties_file)
             })
             .filter_map(|path| {
-                path_to_zip_file_path(&path).map_or_else(
+                path.zip_file_path().map_or_else(
                     || {
                         error!("Invalid UTF-8 in properties file path: {}", path.display());
                         None
@@ -94,15 +94,4 @@ where
 
         properties_files
     }
-}
-
-/// Converts a `Path` to a string representation suitable for use in a ZIP file.
-fn path_to_zip_file_path(path: &Path) -> Option<String> {
-    let mut components = Vec::new();
-
-    for component in path.components() {
-        components.push(component.as_os_str().to_str()?);
-    }
-
-    Some(components.join("/"))
 }

@@ -4,12 +4,14 @@ use entries_mut::EntriesMut;
 pub use error::JarError;
 pub use jar_file::JarFile;
 use read_version::ReadVersion;
+use zip_file_path::ZipFilePath;
 
 mod entries_mut;
 mod error;
 mod jar_file;
 mod read_version;
 mod update_jar;
+mod zip_file_path;
 
 const BOOT_INF: &str = "BOOT-INF";
 const CLASSES: &str = "classes";
