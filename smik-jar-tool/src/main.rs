@@ -10,6 +10,7 @@ use log::error;
 use smik_jar_lib::JarFile;
 
 #[derive(Debug, Parser)]
+#[clap(version, about, author, long_about = None)]
 struct Args {
     #[clap(index = 1, help = "Path to the JAR file")]
     jar_file: PathBuf,
