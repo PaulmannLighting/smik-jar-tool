@@ -62,9 +62,11 @@ where
         for file in files {
             let mut entry = src.by_name(&file)?;
 
-            if exclude.contains(&entry.mangled_name()) {
+            if let Some(path) = entry.enclosed_name()
+                && exclude.contains(&path)
+            {
                 debug!("Excluding file: {file}");
-                options.insert(entry.mangled_name(), entry.options());
+                options.insert(path, entry.options());
                 continue;
             }
 
