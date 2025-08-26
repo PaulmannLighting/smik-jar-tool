@@ -97,10 +97,7 @@ where
         mut options: BTreeMap<PathBuf, SimpleFileOptions>,
     ) -> Result<(), JarError> {
         for (path, properties) in properties {
-            self.start_file(
-                path.to_string_lossy(),
-                options.remove(&path).unwrap_or_default(),
-            )?;
+            self.start_file_from_path(&path, options.remove(&path).unwrap_or_default())?;
             java_properties::write(&mut *self, &properties)?;
         }
 
