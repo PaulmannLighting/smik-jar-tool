@@ -15,7 +15,7 @@ pub trait UpdateJar {
     fn copy_partial<T>(
         &mut self,
         src: &mut ZipArchive<T>,
-        exclude: Vec<String>,
+        exclude: Vec<PathBuf>,
     ) -> Result<BTreeMap<PathBuf, SimpleFileOptions>, ZipError>
     where
         T: Read + Seek;
@@ -37,13 +37,7 @@ pub trait UpdateJar {
     where
         T: Read + Seek,
     {
-        let options = self.copy_partial(
-            src,
-            properties
-                .keys()
-                .filter_map(|path| path.to_str().map(ToOwned::to_owned))
-                .collect(),
-        )?;
+        let options = self.copy_partial(src, properties.keys().cloned().collect())?;
         self.add_files(properties, options)?;
         Ok(())
     }
@@ -56,7 +50,7 @@ where
     fn copy_partial<T>(
         &mut self,
         src: &mut ZipArchive<T>,
-        exclude: Vec<String>,
+        exclude: Vec<PathBuf>,
     ) -> Result<BTreeMap<PathBuf, SimpleFileOptions>, ZipError>
     where
         T: Read + Seek,
@@ -68,9 +62,9 @@ where
         for file in files {
             let mut entry = src.by_name(&file)?;
 
-            if exclude.contains(&file) {
+            if exclude.contains(&entry.mangled_name()) {
                 debug!("Excluding file: {file}");
-                options.insert(PathBuf::from(file), entry.options());
+                options.insert(entry.mangled_name(), entry.options());
                 continue;
             }
 
