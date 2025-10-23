@@ -2,9 +2,9 @@
 
 use std::path::{Path, PathBuf};
 
-pub use error::JarError;
-pub use jar_file::JarFile;
-use read_version::ReadVersion;
+pub use self::error::JarError;
+pub use self::jar_file::JarFile;
+use self::read_version::ReadVersion;
 
 mod by_path;
 mod error;
