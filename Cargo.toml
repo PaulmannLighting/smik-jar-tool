@@ -8,6 +8,7 @@ env_logger = "0.11"
 java-properties = "2"
 log = "0.4"
 smik-jar-lib = { path = "smik-jar-lib" }
+thiserror = "2"
 zip = { version = "8", default-features = false, features = ["deflate"] }
 
 [profile.release]
@@ -43,6 +44,7 @@ complexity = { level = "warn", priority = -100 }
 cargo = { level = "warn", priority = -95 }
 all = { level = "warn", priority = -98 }
 
+multiple_crate_versions = "allow"
 incompatible_msrv = "warn"
 as_ptr_cast_mut = "warn"
 clear_with_drain = "warn"

@@ -11,6 +11,7 @@ readme = "README.md"
 [dependencies]
 java-properties.workspace = true
 log.workspace = true
+thiserror.workspace = true
 zip.workspace = true
 
 [lints]
