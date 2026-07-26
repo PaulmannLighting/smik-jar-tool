@@ -68,31 +68,28 @@ impl JarFile<File> {
     /// cannot be overwritten.
     pub fn set_version(&mut self, version: &str) -> Result<(), JarError> {
         let mut replacement = tempfile()?;
+        let mut zip_archive = ZipArchive::new(&mut self.inner)?;
+        let mut properties = zip_archive.properties();
 
-        {
-            let mut zip_archive = ZipArchive::new(&mut self.inner)?;
-            let mut properties = zip_archive.properties();
-
-            for (path, properties) in &mut properties {
-                if let Some(current_version) = properties.get(SOFTWARE_VERSION) {
-                    info!(
-                        "Updating version in {}: {current_version} -> {version}",
-                        path.display()
-                    );
-                } else {
-                    warn!(
-                        "No version found in {}. Adding version: {version}",
-                        path.display()
-                    );
-                }
-
-                properties.insert(SOFTWARE_VERSION.into(), version.to_string());
+        for (path, properties) in &mut properties {
+            if let Some(current_version) = properties.get(SOFTWARE_VERSION) {
+                info!(
+                    "Updating version in {}: {current_version} -> {version}",
+                    path.display()
+                );
+            } else {
+                warn!(
+                    "No version found in {}. Adding version: {version}",
+                    path.display()
+                );
             }
 
-            let mut zip_writer = ZipWriter::new(&mut replacement);
-            zip_writer.replace(&mut zip_archive, properties)?;
-            zip_writer.finish()?;
+            properties.insert(SOFTWARE_VERSION.into(), version.to_string());
         }
+
+        let mut zip_writer = ZipWriter::new(&mut replacement);
+        zip_writer.replace(&mut zip_archive, properties)?;
+        zip_writer.finish()?;
 
         replacement.rewind()?;
         self.inner.rewind()?;
