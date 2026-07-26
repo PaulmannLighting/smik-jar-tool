@@ -3,12 +3,12 @@ resolver = "3"
 members = ["smik-jar-lib", "smik-jar-tool"]
 
 [workspace.dependencies]
-clap = { version = "4.5", features = ["derive"] }
+clap = { version = "4", features = ["derive"] }
 env_logger = "0.11"
-java-properties = "2.0"
+java-properties = "2"
 log = "0.4"
 smik-jar-lib = { path = "smik-jar-lib" }
-zip = { version = "4.3", default-features = false, features = ["deflate"] }
+zip = { version = "8", default-features = false, features = ["deflate"] }
 
 [profile.release]
 opt-level = 3

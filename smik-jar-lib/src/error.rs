@@ -9,8 +9,10 @@ use zip::result::ZipError;
 pub enum JarError {
     /// An I/O error occurred.
     Io(io::Error),
+
     /// An error occurred while reading or writing the ZIP archive.
     Zip(ZipError),
+
     /// An error occurred while parsing Java properties.
     JavaProperties(PropertiesError),
 }

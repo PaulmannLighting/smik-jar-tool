@@ -6,7 +6,6 @@ pub use self::error::JarError;
 pub use self::jar_file::JarFile;
 use self::read_version::ReadVersion;
 
-mod by_path;
 mod error;
 mod jar_file;
 mod read_version;

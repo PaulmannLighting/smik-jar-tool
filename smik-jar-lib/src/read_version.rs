@@ -5,7 +5,6 @@ use std::path::PathBuf;
 use log::{error, warn};
 use zip::ZipArchive;
 
-use crate::by_path::ByPath;
 use crate::{SOFTWARE_VERSION, properties_files};
 
 /// Reads recognized version properties from a JAR archive.
