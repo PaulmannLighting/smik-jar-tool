@@ -54,12 +54,11 @@ where
     where
         T: Read + Seek,
     {
-        let mut file_buffer = Vec::new();
         let mut options = BTreeMap::new();
         let files: Vec<_> = src.file_names().map(ToOwned::to_owned).collect();
 
         for file in files {
-            let mut entry = src.by_name(&file)?;
+            let entry = src.by_name(&file)?;
 
             if let Some(path) = entry.enclosed_name()
                 && exclude.contains(&path)
@@ -71,10 +70,7 @@ where
 
             if entry.is_file() {
                 debug!("Copying file: {}", entry.name());
-                file_buffer.clear();
-                entry.read_to_end(&mut file_buffer)?;
-                self.start_file(entry.name(), entry.options())?;
-                self.write_all(&file_buffer)?;
+                self.raw_copy_file(entry)?;
             } else if entry.is_dir() {
                 debug!("Creating directory: {}", entry.name());
                 self.add_directory(entry.name(), entry.options())?;

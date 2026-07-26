@@ -1,8 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 use std::fs::{File, OpenOptions};
-use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::ExitCode;
 
 use clap::Parser;
@@ -37,6 +36,7 @@ fn main() -> ExitCode {
 
     let Ok(jar_file) = OpenOptions::new()
         .read(true)
+        .write(args.new_version.is_some())
         .open(&args.jar_file)
         .inspect_err(|error| error!("Error opening file: {error}"))
         .map(JarFile::new)
@@ -45,35 +45,20 @@ fn main() -> ExitCode {
     };
 
     if let Some(version) = args.new_version {
-        replace_version(jar_file, &args.jar_file, &version)
+        replace_version(jar_file, &version)
     } else {
         read_versions(jar_file)
     }
 }
 
-/// Reconstructs the JAR with `version` and overwrites `path`.
-fn replace_version(jar_file: JarFile<File>, path: &Path, version: &str) -> ExitCode {
-    let Ok(new_file) = jar_file
-        .set_version(&version)
+/// Writes `version` to the JAR's supported properties files.
+fn replace_version(mut jar_file: JarFile<File>, version: &str) -> ExitCode {
+    let Ok(()) = jar_file
+        .set_version(version)
         .inspect_err(|error| error!("Error setting version: {error}"))
     else {
         return ExitCode::FAILURE;
     };
-
-    let Ok(mut dst) = OpenOptions::new()
-        .write(true)
-        .create(true)
-        .truncate(true)
-        .open(path)
-        .inspect_err(|error| error!("Error opening file: {error}"))
-    else {
-        return ExitCode::FAILURE;
-    };
-
-    if let Err(error) = dst.write_all(&new_file) {
-        error!("Error writing to file: {error}");
-        return ExitCode::FAILURE;
-    }
 
     ExitCode::SUCCESS
 }

@@ -33,10 +33,12 @@ Supply the replacement version as the second positional argument:
 smik-jar-tool application.jar 2.4.0
 ```
 
-The command updates every supported properties file found in the archive, then
-overwrites the input path with the reconstructed JAR. A missing
-`softwareVersion` property is added. The update is not a dry run, and no backup
-is created automatically.
+The command opens the archive for reading and writing, updates every supported
+properties file through an anonymous file created by the `tempfile` crate, and
+then streams the completed archive back through that same file. The temporary
+archive is removed automatically when dropped. A missing `softwareVersion`
+property is added. The update is not a dry run, and no backup is created
+automatically.
 
 The supported files are `application.properties` and its `dev`, `int`,
 `local`, and `prod` variants below `BOOT-INF/classes/`.

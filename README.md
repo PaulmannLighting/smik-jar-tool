@@ -49,12 +49,15 @@ The tool looks below `BOOT-INF/classes/` for these files:
 
 Missing property files are skipped. During an update, every discovered file is
 rewritten with the requested `softwareVersion`; a missing property is added.
-Other archive entries are copied to the replacement JAR.
+Other archive entries are preserved.
 
-The update command overwrites the supplied archive after constructing its
-replacement in memory. Keep a backup when modifying an artifact that cannot be
-recreated. Rewriting a signed JAR invalidates signatures that cover changed
-content.
+The update command streams the reconstructed JAR into an anonymous file
+created by the `tempfile` crate. Once reconstruction succeeds, it streams that
+file through the same owned archive file and truncates the archive to its new
+length. The temporary file is removed automatically when dropped. The archive
+is not held in an intermediate RAM buffer. Keep a backup when modifying an
+artifact that cannot be recreated. Rewriting a signed JAR invalidates
+signatures that cover changed content.
 
 Set `RUST_LOG` to control diagnostics:
 

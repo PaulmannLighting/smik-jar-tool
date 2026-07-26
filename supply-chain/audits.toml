@@ -37,6 +37,12 @@ criteria = "safe-to-deploy"
 version = "3.0.9"
 notes = "AI-assisted full source audit. Reviewed ANSI-to-Windows-console translation, stream wrapping, handle validation, and console API calls. FFI buffers and handles are initialized and result codes checked; no build script or hidden I/O exists."
 
+[[audits.bitflags]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "2.13.1"
+notes = "AI-assisted full source audit. Reviewed flag-generation macros, bit truncation/retention and iterator behavior, plus optional serde/arbitrary/bytemuck integrations. Runtime code forbids unsafe; optional Pod/Zeroable implementations preserve the transparent integral representation, and the crate has no build script or I/O."
+
 [[audits.bumpalo]]
 who = "Richard Neumann <neumann@paulmann.de>"
 criteria = "safe-to-deploy"
@@ -97,11 +103,29 @@ criteria = "safe-to-deploy"
 version = "0.11.8"
 notes = "AI-assisted full source audit. Reviewed logger configuration, formatting, synchronization, terminal styling, and environment parsing; no unsafe code or build script is present and I/O is limited to documented log output."
 
+[[audits.errno]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.3.14"
+notes = "AI-assisted full source audit. Reviewed Unix, Windows, WASI, Hermit, and Cygwin errno access and error-description formatting. Thread-local errno pointers and platform message buffers use matching ABI types and checked return values; there is no build script, network access, or filesystem behavior."
+
+[[audits.fastrand]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "2.5.0"
+notes = "AI-assisted full source audit. Reviewed WyRand state evolution, unbiased range sampling, iterator selection/shuffling, alphabetic generation, and thread-local seeding. Unsafe code is forbidden, integer arithmetic is deliberately wrapping or widened, and no build script or hidden I/O exists."
+
 [[audits.flate2]]
 who = "Richard Neumann <neumann@paulmann.de>"
 criteria = "safe-to-deploy"
 version = "1.1.2"
 notes = "AI-assisted full source audit. Reviewed stream adapters, buffer/state transitions, checksum handling, and miniz/zlib backend FFI wrappers. Raw stream pointers remain tied to live slices, backend return codes and initialization state are checked, and Drop finalizes owned state without double free."
+
+[[audits.getrandom]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.4.3"
+notes = "AI-assisted full source audit. Reviewed platform backend selection, OS entropy FFI/syscalls, partial-fill and EINTR handling, fallback random-device descriptor synchronization, hardware-instruction detection, and MaybeUninit initialization. Buffer pointers and lengths derive from live slices, success requires complete initialization, handles and return codes are checked, and the build script only reads sanitizer configuration."
 
 [[audits.hashbrown]]
 who = "Richard Neumann <neumann@paulmann.de>"
@@ -145,11 +169,23 @@ criteria = "safe-to-deploy"
 version = "0.2.15"
 notes = "AI-assisted full source audit. Reviewed embedded/static TZif data lookup, optional caller-requested file loading, and static TimeZone copy semantics. The unsafe copy duplicates a const Copy value and no build script or network behavior exists."
 
+[[audits.libc]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.2.189"
+notes = "AI-assisted full source audit. Reviewed generated cross-platform ABI declarations, repr(C) types, helper macros/functions, target cfg selection, and the compiler/platform probe build script. Raw pointer and FFI operations remain unsafe caller-facing APIs; safe helpers enforce layout/bounds invariants, and build-time process execution is limited to configured compiler and target version probes."
+
 [[audits.libz-rs-sys]]
 who = "Richard Neumann <neumann@paulmann.de>"
 criteria = "safe-to-deploy"
 version = "0.5.1"
 notes = "AI-assisted full source audit. Reviewed the complete zlib-compatible C ABI wrapper over zlib-rs. Entry points validate required stream and buffer pointers before slice creation, preserve z_stream allocation ownership, contain panics at FFI boundaries, and translate statuses/sizes without unchecked overflow."
+
+[[audits.linux-raw-sys]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.12.1"
+notes = "AI-assisted full source audit. Reviewed generated Linux UAPI constants and repr(C) structures across supported architectures, feature/module selection, bindgen bitfield accessors, flexible-array helpers, and package metadata. Unsafe accessors expose caller preconditions, bit offsets and backing-array widths are generated consistently, and the crate has no build script or runtime I/O."
 
 [[audits.log]]
 who = "Richard Neumann <neumann@paulmann.de>"
@@ -168,6 +204,12 @@ who = "Richard Neumann <neumann@paulmann.de>"
 criteria = "safe-to-deploy"
 version = "0.8.9"
 notes = "AI-assisted full source audit. Reviewed DEFLATE/inflate state machines, Huffman table construction, output bounds, checksums, and allocation/error paths. Library unsafe code is forbidden; indexing and integer conversions are guarded and malformed streams return errors rather than escaping buffer bounds."
+
+[[audits.once_cell]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.21.4"
+notes = "AI-assisted full source audit. Reviewed unsynchronized, blocking synchronized, parking-lot, critical-section, and atomic race implementations. Initialization state gates unchecked reads, Acquire/Release edges publish values, waiter nodes remain live until signaled, panic guards restore state, and raw Box pointers retain single ownership; there is no build script or hidden I/O."
 
 [[audits.once_cell_polyfill]]
 who = "Richard Neumann <neumann@paulmann.de>"
@@ -193,6 +235,12 @@ criteria = "safe-to-deploy"
 version = "1.0.95"
 notes = "AI-assisted full source audit. Reviewed token representation, fallback parser, span handling, unsafe literal constructors, and compiler probe build script. Pointer reads prevent double-drop, unchecked constructors retain explicit caller contracts, and the build script only runs the configured rustc in OUT_DIR."
 
+[[audits.r-efi]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "6.0.0"
+notes = "AI-assisted full source audit. Reviewed UEFI specification constants, GUIDs, repr(C) protocol/system structures, unions, and unsafe efiapi function-pointer definitions. The crate is declarative ABI surface with native code feature-gated, contains no build script or automatic I/O, and leaves raw firmware calls explicitly unsafe to consumers."
+
 [[audits.regex]]
 who = "Richard Neumann <neumann@paulmann.de>"
 criteria = "safe-to-deploy"
@@ -205,6 +253,12 @@ criteria = "safe-to-deploy"
 version = "0.4.9"
 notes = "AI-assisted full source audit. Reviewed Thompson NFA, PikeVM/backtracker, hybrid and dense/sparse DFA construction/search, serialized DFA validation, caches/pools, and accelerators. Unchecked searches are private behind validated preconditions, serialized offsets/alignment are checked, and lazy/pool synchronization prevents aliasing or uninitialized access."
 
+[[audits.rustix]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.1.4"
+notes = "AI-assisted full source audit. Reviewed safe syscall wrappers, file-descriptor ownership/borrowing, path-to-C-string validation, initialized-buffer tracking, errno decoding, libc and Linux-raw backends, architecture syscall assembly, and compiler feature probes. Pointer/length pairs derive from borrowed buffers, returned descriptors become uniquely owned only after success, syscall results gate initialized reads, and raw operations expose explicit safety contracts."
+
 [[audits.syn]]
 who = "Richard Neumann <neumann@paulmann.de>"
 criteria = "safe-to-deploy"
@@ -216,6 +270,12 @@ who = "Richard Neumann <neumann@paulmann.de>"
 criteria = "safe-to-deploy"
 version = "3.0.3"
 notes = "AI-assisted full source audit. Reviewed token buffering/cursors, group offset encoding, parsing lifetimes, AST construction, and feature-gated thread binding. Cursor pointers stay within an owned sentinel-terminated buffer, lifetime extension is contained by parse-buffer ownership, and token wrapper casts use identical representations."
+
+[[audits.tempfile]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "3.27.0"
+notes = "AI-assisted full source audit. Reviewed unnamed/named file creation, exclusive randomized paths, O_TMPFILE and unlink fallback, Unix mode 0600, Windows delete-on-close handling, cleanup destructors, persistence/reopen identity checks, directories, and spooled files. Creation avoids clobbering, handles remain owned through cleanup, platform FFI checks errors, and the crate has no build script or network/process behavior."
 
 [[audits.thiserror]]
 who = "Richard Neumann <neumann@paulmann.de>"

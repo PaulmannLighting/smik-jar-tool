@@ -27,30 +27,31 @@ The result is ordered by path. A value of `None` means that a discovered propert
 
 ## Updating a version
 
-Updating requires readable, writable, seekable storage. `set_version` builds and returns a complete replacement archive;
-it does not overwrite the original storage:
+Updating is available for `JarFile<File>`. `set_version` overwrites the owned
+file and returns no archive buffer:
 
 ```rust,no_run
-use std::fs::{File, OpenOptions};
-use std::io::Write;
+use std::fs::OpenOptions;
 
 use smik_jar_lib::JarFile;
 
-let source = File::open("application.jar")?;
-let mut jar = JarFile::new(source);
-let replacement = jar.set_version(&"2.4.0")?;
-
-let mut destination = OpenOptions::new()
+let storage = OpenOptions::new()
+    .read(true)
     .write(true)
-    .truncate(true)
     .open("application.jar")?;
-destination.write_all(&replacement)?;
+let mut jar = JarFile::new(storage);
+jar.set_version("2.4.0")?;
 
 # Ok::<(), Box<dyn std::error::Error>>(())
 ```
 
 Every supported properties file found in the archive receives the new value. Other regular files and directories are
-copied into the replacement archive.
+preserved. Because ZIP entries cannot be resized in place, the archive is
+streamed into an anonymous file created by the `tempfile` crate first. After
+reconstruction succeeds, the temporary file is streamed into the wrapped
+file, which is truncated and rewound. The temporary file is removed
+automatically when it is dropped, and the `JarFile` remains usable after the
+update.
 
 ## Supported paths
 
@@ -66,8 +67,10 @@ Each filename is resolved relative to `BOOT-INF/classes/`.
 
 ## Errors and diagnostics
 
-`JarFile::versions` returns ZIP errors that prevent the archive from being opened. `JarFile::set_version` returns
-`JarError`, which represents I/O, ZIP, and Java properties failures. Non-fatal discovery and parsing diagnostics use the
-`log` facade, so applications can choose their preferred logger.
+`JarFile::versions` returns ZIP errors that prevent the archive from being
+opened. `JarFile::set_version` returns `JarError`, which represents storage
+I/O, ZIP, and Java properties failures. Non-fatal discovery and parsing
+diagnostics use the `log` facade, so applications can choose their preferred
+logger.
 
 The crate is an internal workspace package and is not configured for publication.
