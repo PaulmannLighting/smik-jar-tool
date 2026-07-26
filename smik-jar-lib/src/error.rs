@@ -1,4 +1,4 @@
-use std::io;
+use std::io::Error;
 
 use java_properties::PropertiesError;
 use thiserror::Error;
@@ -9,7 +9,7 @@ use zip::result::ZipError;
 pub enum JarError {
     /// An I/O error occurred.
     #[error("I/O error: {0}")]
-    Io(#[from] io::Error),
+    Io(#[from] Error),
 
     /// An error occurred while reading or writing the ZIP archive.
     #[error("ZIP error: {0}")]
