@@ -5,6 +5,7 @@ use zip::ZipArchive;
 use zip::read::ZipFile;
 use zip::result::{ZipError, ZipResult};
 
+/// Looks up ZIP archive entries using filesystem-style paths.
 pub trait ByPath<R>
 where
     R: Read,

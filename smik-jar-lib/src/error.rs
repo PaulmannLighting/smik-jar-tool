@@ -7,7 +7,7 @@ use zip::result::ZipError;
 /// Error type for the JAR library.
 #[derive(Debug)]
 pub enum JarError {
-    /// And I/O error occurred.
+    /// An I/O error occurred.
     Io(io::Error),
     /// An error occurred while reading or writing the ZIP archive.
     Zip(ZipError),

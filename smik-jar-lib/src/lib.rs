@@ -1,4 +1,4 @@
-//! Library to read JAR files and extract the software version from them.
+#![doc = include_str!("../README.md")]
 
 use std::path::{Path, PathBuf};
 
@@ -23,7 +23,7 @@ const PROPERTIES_FILES: [&str; 5] = [
     "application-prod.properties",
 ];
 
-/// Returns an iterator over the JAR file's properties files.
+/// Returns the recognized properties-file paths within a JAR archive.
 fn properties_files() -> impl Iterator<Item = PathBuf> {
     PROPERTIES_FILES.iter().map(|properties_file| {
         Path::new(BOOT_INF)

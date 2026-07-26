@@ -1,4 +1,4 @@
-//! CLI tool for managing smik JAR file versions.
+#![doc = include_str!("../README.md")]
 
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -9,6 +9,7 @@ use clap::Parser;
 use log::error;
 use smik_jar_lib::JarFile;
 
+/// Command-line arguments.
 #[derive(Debug, Parser)]
 #[clap(
     version,
@@ -17,23 +18,31 @@ use smik_jar_lib::JarFile;
     long_about = "Tool to read and update the version in a JAR file."
 )]
 struct Args {
+    /// Path to the JAR archive.
     #[clap(index = 1, help = "Path to the JAR file")]
     jar_file: PathBuf,
-    #[clap(index = 2, help = "The version to set in the JAR file")]
-    version: Option<String>,
+    /// Version to write, or `None` to read the current versions.
+    #[clap(
+        index = 2,
+        value_name = "VERSION",
+        help = "The version to set in the JAR file"
+    )]
+    new_version: Option<String>,
 }
 
+/// Runs the requested read or update operation.
 fn main() -> ExitCode {
     env_logger::init();
     let args = Args::parse();
 
-    if let Some(version) = args.version {
+    if let Some(version) = args.new_version {
         replace_version(&args.jar_file, &version)
     } else {
         read_versions(&args.jar_file)
     }
 }
 
+/// Reconstructs the JAR with `version` and overwrites `path`.
 fn replace_version(path: &Path, version: &str) -> ExitCode {
     let Ok(src) = OpenOptions::new()
         .read(true)
@@ -73,6 +82,7 @@ fn replace_version(path: &Path, version: &str) -> ExitCode {
     ExitCode::SUCCESS
 }
 
+/// Prints versions from the supported properties files in `path`.
 fn read_versions(path: &Path) -> ExitCode {
     let Ok(src) = OpenOptions::new()
         .read(true)

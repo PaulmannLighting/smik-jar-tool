@@ -6,11 +6,12 @@ license = "MIT"
 version = "0.1.0"
 edition = "2024"
 publish = false
+readme = "README.md"
 
 [dependencies]
-java-properties = "2.0"
-log = "0.4"
-zip = { version = "4.3", default-features = false, features = ["deflate"] }
+java-properties.workspace = true
+log.workspace = true
+zip.workspace = true
 
 [lints]
 workspace = true

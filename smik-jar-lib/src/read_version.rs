@@ -8,7 +8,7 @@ use zip::ZipArchive;
 use crate::by_path::ByPath;
 use crate::{SOFTWARE_VERSION, properties_files};
 
-/// Extension trait to represent a JAR file.
+/// Reads recognized version properties from a JAR archive.
 pub trait ReadVersion<T> {
     /// Returns the JAR file's properties files as a map of path to properties.
     #[must_use]

@@ -9,9 +9,9 @@ use zip::{ZipArchive, ZipWriter};
 
 use crate::JarError;
 
+/// Reconstructs a JAR archive with selected properties files replaced.
 pub trait UpdateJar {
-    /// Copies the specified the files from the given [`ZipArchive`] into `self`,
-    /// except for the files listed in `exclude`.
+    /// Copies entries from the given [`ZipArchive`] except for `exclude`.
     fn copy_partial<T>(
         &mut self,
         src: &mut ZipArchive<T>,
@@ -20,15 +20,14 @@ pub trait UpdateJar {
     where
         T: Read + Seek;
 
-    /// Adds the given `application*.properties` files with their respective `options` to `self`.
+    /// Adds properties files with their respective ZIP options.
     fn add_files(
         &mut self,
         properties: BTreeMap<PathBuf, HashMap<String, String>>,
         options: BTreeMap<PathBuf, SimpleFileOptions>,
     ) -> Result<(), JarError>;
 
-    /// Replaces the contents of the given [`ZipArchive`] with the
-    /// specified `application*.properties` files.
+    /// Copies an archive while replacing the specified properties files.
     fn replace<T>(
         &mut self,
         src: &mut ZipArchive<T>,
