@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 
-use std::fs::OpenOptions;
+use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -35,34 +35,30 @@ fn main() -> ExitCode {
     env_logger::init();
     let args = Args::parse();
 
-    if let Some(version) = args.new_version {
-        replace_version(&args.jar_file, &version)
-    } else {
-        read_versions(&args.jar_file)
-    }
-}
-
-/// Reconstructs the JAR with `version` and overwrites `path`.
-fn replace_version(path: &Path, version: &str) -> ExitCode {
-    let Ok(src) = OpenOptions::new()
+    let Ok(jar_file) = OpenOptions::new()
         .read(true)
-        .open(path)
+        .open(&args.jar_file)
         .inspect_err(|error| error!("Error opening file: {error}"))
+        .map(JarFile::new)
     else {
         return ExitCode::FAILURE;
     };
 
-    let mut jar_file = JarFile::new(src);
+    if let Some(version) = args.new_version {
+        replace_version(jar_file, &args.jar_file, &version)
+    } else {
+        read_versions(jar_file)
+    }
+}
 
+/// Reconstructs the JAR with `version` and overwrites `path`.
+fn replace_version(jar_file: JarFile<File>, path: &Path, version: &str) -> ExitCode {
     let Ok(new_file) = jar_file
         .set_version(&version)
         .inspect_err(|error| error!("Error setting version: {error}"))
     else {
         return ExitCode::FAILURE;
     };
-
-    // Close the source file to ensure it is not blocked.
-    drop(jar_file);
 
     let Ok(mut dst) = OpenOptions::new()
         .write(true)
@@ -83,17 +79,7 @@ fn replace_version(path: &Path, version: &str) -> ExitCode {
 }
 
 /// Prints versions from the supported properties files in `path`.
-fn read_versions(path: &Path) -> ExitCode {
-    let Ok(src) = OpenOptions::new()
-        .read(true)
-        .open(path)
-        .inspect_err(|error| error!("Error opening file: {error}"))
-    else {
-        return ExitCode::FAILURE;
-    };
-
-    let mut jar_file = JarFile::new(src);
-
+fn read_versions(mut jar_file: JarFile<File>) -> ExitCode {
     let Ok(versions) = jar_file
         .versions()
         .inspect_err(|error| error!("Error reading versions: {error}"))

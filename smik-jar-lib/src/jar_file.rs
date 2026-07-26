@@ -60,8 +60,8 @@ where
     ///
     /// Returns a [`JarError`] if the archive cannot be read or reconstructed,
     /// or if a properties file cannot be serialized.
-    pub fn set_version(&mut self, version: &impl ToString) -> Result<Vec<u8>, JarError> {
-        let mut zip_archive = ZipArchive::new(&mut self.inner)?;
+    pub fn set_version(self, version: &impl ToString) -> Result<Vec<u8>, JarError> {
+        let mut zip_archive = ZipArchive::new(self.inner)?;
         let mut buffer: Vec<u8> = Vec::new();
 
         let mut properties = zip_archive.properties();
