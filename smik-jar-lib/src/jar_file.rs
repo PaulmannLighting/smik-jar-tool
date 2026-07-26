@@ -60,7 +60,7 @@ where
     ///
     /// Returns a [`JarError`] if the archive cannot be read or reconstructed,
     /// or if a properties file cannot be serialized.
-    pub fn set_version(self, version: &impl ToString) -> Result<Vec<u8>, JarError> {
+    pub fn set_version(self, version: &str) -> Result<Vec<u8>, JarError> {
         let mut zip_archive = ZipArchive::new(self.inner)?;
         let mut buffer: Vec<u8> = Vec::new();
 
@@ -69,15 +69,13 @@ where
         for (path, properties) in &mut properties {
             if let Some(current_version) = properties.get(SOFTWARE_VERSION) {
                 info!(
-                    "Updating version in {}: {current_version} -> {}",
-                    path.display(),
-                    version.to_string()
+                    "Updating version in {}: {current_version} -> {version}",
+                    path.display()
                 );
             } else {
                 warn!(
-                    "No version found in {}. Adding version: {}",
-                    path.display(),
-                    version.to_string()
+                    "No version found in {}. Adding version: {version}",
+                    path.display()
                 );
             }
 
