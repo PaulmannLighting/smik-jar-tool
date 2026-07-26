@@ -1,0 +1,314 @@
+
+# cargo-vet audits file
+
+[[audits.aho-corasick]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.1.3"
+notes = "AI-assisted full source audit. Reviewed DFA/NFA construction and search bounds plus packed Teddy/SIMD implementations. Target-feature dispatch gates vector intrinsics, unaligned loads stay within caller-proven ranges, and candidate verification prevents unchecked false matches; no build script or external I/O exists."
+
+[[audits.anstream]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.6.19"
+notes = "AI-assisted full source audit. Reviewed stream locking, terminal/style adaptation, ANSI stripping, and UTF-8 reconstruction. The unchecked conversion is confined to bytes originating in validated UTF-8 with escape removal preserving continuation sequences; no build script or hidden I/O exists."
+
+[[audits.anstyle]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.0.11"
+notes = "AI-assisted full source audit. Reviewed style/color representation and rendering. The sole unchecked UTF-8 conversion formats only ASCII digits and separators written by the module into a bounded buffer; no build script or external I/O exists."
+
+[[audits.anstyle-parse]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.2.7"
+notes = "AI-assisted full source audit. Reviewed parser state tables, parameter bounds, OSC slice initialization, and enum transmute invariants. Array elements are initialized before reference conversion and packed state/action nibbles map to the complete 16-variant enums."
+
+[[audits.anstyle-query]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.1.3"
+notes = "AI-assisted full source audit. Reviewed environment-based color detection and Windows console-mode query. The Windows FFI uses an initialized handle/mode buffer and checks API success; no build script, network, or file access exists."
+
+[[audits.anstyle-wincon]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "3.0.9"
+notes = "AI-assisted full source audit. Reviewed ANSI-to-Windows-console translation, stream wrapping, handle validation, and console API calls. FFI buffers and handles are initialized and result codes checked; no build script or hidden I/O exists."
+
+[[audits.bumpalo]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "3.19.0"
+notes = "AI-assisted full source audit. Reviewed arena chunk allocation, alignment/overflow calculations, reset/drop behavior, boxed values, Vec/String growth, and iterator construction. Allocation layouts are checked, initialized lengths track written elements, ownership is transferred once, and exposed unsafe APIs document caller obligations."
+
+[[audits.cfg-if]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.0.1"
+notes = "AI-assisted full source audit. Reviewed the declarative cfg selection macro and package metadata; the crate contains no unsafe code, build script, privileged I/O, or executable runtime behavior."
+
+[[audits.clap]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "4.5.41"
+notes = "AI-assisted full source audit. Reviewed the facade crate, feature wiring, documentation inclusion, and public re-exports; unsafe code is forbidden and there is no build script or hidden I/O."
+
+[[audits.clap_builder]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "4.5.41"
+notes = "AI-assisted full source audit. Reviewed command construction, argument parsing, validation, rendering, environment handling, and error paths; unsafe code is forbidden and process exits are explicit documented API behavior."
+
+[[audits.clap_derive]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "4.5.41"
+notes = "AI-assisted full source audit. Reviewed proc-macro input parsing and generated clap implementations; unsafe code is forbidden, environment access is limited to Cargo package metadata, and there is no build-time network or process execution."
+
+[[audits.clap_lex]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.7.5"
+notes = "AI-assisted full source audit. Reviewed OsStr tokenization, delimiter search, and encoded-byte splitting. Unchecked OsStr reconstruction uses bytes from as_encoded_bytes and only splits at boundaries derived from UTF-8 needles or validated prefixes."
+
+[[audits.colorchoice]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.0.4"
+notes = "AI-assisted full source audit. Reviewed the small color-choice enum crate and package contents; no unsafe code, build script, I/O, or executable behavior is present."
+
+[[audits.crc32fast]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.5.0"
+notes = "AI-assisted full source audit. Reviewed scalar and SIMD CRC implementations plus compiler-version build probe. PCLMULQDQ and ARM intrinsics are feature-detected or compile-time gated, slice chunking establishes load bounds, and the build script only invokes the configured rustc version query."
+
+[[audits.env_filter]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.1.3"
+notes = "AI-assisted full source audit. Reviewed directive parsing, regex filtering, and named environment-variable loading; no unsafe code, build script, network access, or unexpected file/process access is present."
+
+[[audits.env_logger]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.11.8"
+notes = "AI-assisted full source audit. Reviewed logger configuration, formatting, synchronization, terminal styling, and environment parsing; no unsafe code or build script is present and I/O is limited to documented log output."
+
+[[audits.flate2]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.1.2"
+notes = "AI-assisted full source audit. Reviewed stream adapters, buffer/state transitions, checksum handling, and miniz/zlib backend FFI wrappers. Raw stream pointers remain tied to live slices, backend return codes and initialization state are checked, and Drop finalizes owned state without double free."
+
+[[audits.hashbrown]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.15.4"
+notes = "AI-assisted full source audit. Reviewed raw table allocation/layout, control-byte groups and SIMD dispatch, probing/growth, insertion/removal, iterators, drain/extract, and panic guards. Bucket pointers derive from validated table masks, initialization state follows control bytes, and allocation/drop paths preserve ownership and alignment."
+
+[[audits.heck]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.5.0"
+notes = "AI-assisted full source audit. Reviewed case-boundary detection and string transformation implementations; unsafe code is forbidden and the crate has no build script or external I/O."
+
+[[audits.indexmap]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "2.10.0"
+notes = "AI-assisted full source audit. Reviewed map/set indexing, hash-table synchronization, mutation/removal/retain/extract paths, and slice wrapper casts. Transparent slice wrappers preserve element layout, boxed casts retain allocation ownership, mutable iteration partitions indices, and the crate denies other unsafe code."
+
+[[audits.is_terminal_polyfill]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.70.1"
+notes = "AI-assisted full source audit. Reviewed the compatibility trait implementation; the crate is intentionally minimal, contains no unsafe code or build script, and performs no I/O."
+
+[[audits.java-properties]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "2.0.0"
+notes = "AI-assisted full source audit. Reviewed Java properties parsing, escaping, encoding, and writer behavior plus packaged developer hook scripts; Rust code is safe and I/O occurs only through caller-provided readers and writers."
+
+[[audits.jiff]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.2.15"
+notes = "AI-assisted full source audit. Reviewed civil/timestamp arithmetic bounds, parsing/formatting, TZif/POSIX rule parsing, zone database file access, platform time-zone discovery, and unsafe platform/representation code. FFI signatures and C-string lifetimes match platform APIs, dynamic symbols are checked, enum/UTF-8 conversions retain validated invariants, and shared state is synchronized."
+
+[[audits.jiff-static]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.2.15"
+notes = "AI-assisted full source audit. Reviewed embedded/static TZif data lookup, optional caller-requested file loading, and static TimeZone copy semantics. The unsafe copy duplicates a const Copy value and no build script or network behavior exists."
+
+[[audits.libz-rs-sys]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.5.1"
+notes = "AI-assisted full source audit. Reviewed the complete zlib-compatible C ABI wrapper over zlib-rs. Entry points validate required stream and buffer pointers before slice creation, preserve z_stream allocation ownership, contain panics at FFI boundaries, and translate statuses/sizes without unchecked overflow."
+
+[[audits.log]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.4.33"
+notes = "AI-assisted full source audit. Reviewed global logger initialization, atomic level filtering, key-value support, and cfg fallbacks. Unsafe paths are limited to documented racy APIs, valid atomic compatibility shims, initialized static logger state, and an in-range enum transmute."
+
+[[audits.memchr]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "2.7.5"
+notes = "AI-assisted full source audit. Reviewed scalar, word-at-a-time, packed-pair, SSE2, AVX2, NEON, WASM SIMD, and substring search paths. Runtime feature detection gates intrinsics, pointer alignment and end calculations are checked, overlapping tail reads remain within the original slice, and result offsets are range-validated."
+
+[[audits.miniz_oxide]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.8.9"
+notes = "AI-assisted full source audit. Reviewed DEFLATE/inflate state machines, Huffman table construction, output bounds, checksums, and allocation/error paths. Library unsafe code is forbidden; indexing and integer conversions are guarded and malformed streams return errors rather than escaping buffer bounds."
+
+[[audits.once_cell_polyfill]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.70.1"
+notes = "AI-assisted full source audit. Reviewed the minimal compatibility wrapper over OnceLock; no unsafe code, build script, I/O, or executable behavior is present."
+
+[[audits.portable-atomic]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.11.1"
+notes = "AI-assisted full source audit. Reviewed architecture cfg generation, atomic load/store/RMW/CAS implementations, 128-bit assembly/intrinsics, feature detection, interrupt/lock fallbacks, alignment, and ordering validation. Target-specific code is gated, operands use valid aligned storage, fallback locks serialize access, and the build script only probes compiler/target capabilities."
+
+[[audits.portable-atomic-util]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.2.4"
+notes = "AI-assisted full source audit. Reviewed Arc/Weak allocation layout, atomic reference-count transitions, raw-pointer conversions, overflow guards, drop synchronization, task wakeups, and compiler cfg probe. Counts retain their implicit weak reference invariant, Acquire/Release edges protect destruction, and allocations are initialized and freed exactly once."
+
+[[audits.proc-macro2]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.0.95"
+notes = "AI-assisted full source audit. Reviewed token representation, fallback parser, span handling, unsafe literal constructors, and compiler probe build script. Pointer reads prevent double-drop, unchecked constructors retain explicit caller contracts, and the build script only runs the configured rustc in OUT_DIR."
+
+[[audits.regex]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "1.11.1"
+notes = "AI-assisted full source audit. Reviewed string/byte regex wrappers, capture/replacement iteration, set handling, and feature wiring. The only operational unsafe implementation is the nightly Pattern Searcher whose haystack lifetime and monotonic match ranges satisfy the trait contract; no build script or hidden I/O exists."
+
+[[audits.regex-automata]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.4.9"
+notes = "AI-assisted full source audit. Reviewed Thompson NFA, PikeVM/backtracker, hybrid and dense/sparse DFA construction/search, serialized DFA validation, caches/pools, and accelerators. Unchecked searches are private behind validated preconditions, serialized offsets/alignment are checked, and lazy/pool synchronization prevents aliasing or uninitialized access."
+
+[[audits.syn]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "2.0.104"
+notes = "AI-assisted full source audit. Reviewed token buffering/cursors, group offset encoding, parsing lifetimes, AST construction, and feature-gated thread binding. Cursor pointers stay within an owned sentinel-terminated buffer, lifetime extension is contained by parse-buffer ownership, and token wrapper casts use identical representations."
+
+[[audits.syn]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "3.0.3"
+notes = "AI-assisted full source audit. Reviewed token buffering/cursors, group offset encoding, parsing lifetimes, AST construction, and feature-gated thread binding. Cursor pointers stay within an owned sentinel-terminated buffer, lifetime extension is contained by parse-buffer ownership, and token wrapper casts use identical representations."
+
+[[audits.thiserror]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "2.0.19"
+notes = "AI-assisted full source audit. Reviewed error trait support, generated private module, and compiler feature probe; unsafe code is forbidden in the library and the build script only invokes the configured compiler and writes under OUT_DIR."
+
+[[audits.thiserror-impl]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "2.0.19"
+notes = "AI-assisted full source audit. Reviewed derive input validation, expression scanning, and generated Error/Display/source/backtrace implementations; no executable build script, network access, or operational unsafe code is present."
+
+[[audits.typed-path]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.12.3"
+notes = "AI-assisted full source audit. Reviewed Unix/Windows byte and UTF-8 path parsing, normalization, component iteration, owned/reference casts, and conversion APIs. Transparent unsized casts preserve layout; raw Box/Arc/Rc round trips preserve provenance; unchecked UTF-8 APIs expose explicit preconditions."
+
+[[audits.windows-sys]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.59.0"
+notes = "AI-assisted full source audit. Reviewed the generated Windows API constants, repr(C) structures/unions, COM/vtable definitions, handle aliases, extern imports, and feature gating. The crate supplies bindings rather than executing initialization logic; ABI layouts and link names follow the Windows metadata generator output and unsafe calls remain explicit to downstream callers."
+
+[[audits.windows-targets]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.52.6"
+notes = "AI-assisted full source audit. Reviewed target cfg selection and dependency wiring for GNU, GNULLVM, and MSVC import-library crates. The crate contains no unsafe code, build script, runtime logic, or network/file access."
+
+[[audits.windows_aarch64_gnullvm]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.52.6"
+notes = "AI-assisted full package audit. Reviewed the local-link-search build script and inspected the bundled AArch64 GNULLVM archive member inventory as Windows DLL import stubs. The build script only references CARGO_MANIFEST_DIR and performs no network, process, or filesystem mutation."
+
+[[audits.windows_aarch64_msvc]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.52.6"
+notes = "AI-assisted full package audit. Reviewed the local-link-search build script and inspected the bundled AArch64 MSVC library member inventory as Windows DLL imports. The build script only references CARGO_MANIFEST_DIR and performs no network, process, or filesystem mutation."
+
+[[audits.windows_i686_gnu]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.52.6"
+notes = "AI-assisted full package audit. Reviewed the local-link-search build script and inspected the bundled i686 GNU archive member inventory as Windows DLL import stubs. The build script only references CARGO_MANIFEST_DIR and performs no network, process, or filesystem mutation."
+
+[[audits.windows_i686_gnullvm]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.52.6"
+notes = "AI-assisted full package audit. Reviewed the local-link-search build script and inspected the bundled i686 GNULLVM archive member inventory as Windows DLL import stubs. The build script only references CARGO_MANIFEST_DIR and performs no network, process, or filesystem mutation."
+
+[[audits.windows_i686_msvc]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.52.6"
+notes = "AI-assisted full package audit. Reviewed the local-link-search build script and inspected the bundled i686 MSVC library member inventory as Windows DLL imports. The build script only references CARGO_MANIFEST_DIR and performs no network, process, or filesystem mutation."
+
+[[audits.windows_x86_64_gnu]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.52.6"
+notes = "AI-assisted full package audit. Reviewed the local-link-search build script and inspected the bundled x86_64 GNU archive member inventory as Windows DLL import stubs. The build script only references CARGO_MANIFEST_DIR and performs no network, process, or filesystem mutation."
+
+[[audits.windows_x86_64_gnullvm]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.52.6"
+notes = "AI-assisted full package audit. Reviewed the local-link-search build script and inspected the bundled x86_64 GNULLVM archive member inventory as Windows DLL import stubs. The build script only references CARGO_MANIFEST_DIR and performs no network, process, or filesystem mutation."
+
+[[audits.windows_x86_64_msvc]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.52.6"
+notes = "AI-assisted full package audit. Reviewed the local-link-search build script and inspected the bundled x86_64 MSVC library member inventory as Windows DLL imports. The build script only references CARGO_MANIFEST_DIR and performs no network, process, or filesystem mutation."
+
+[[audits.zip]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "8.6.0"
+notes = "AI-assisted full source audit. Reviewed ZIP/ZIP64 header parsing and size arithmetic, extra fields, enclosed-name handling, readers/writers, CRC/compression adapters, and unsafe byte-layout helpers. Packed POD types contain only valid integer fields with no padding, reads are exact and bounds-checked, mutable writer escape hatches and unchecked constructors document caller contracts, and there is no build script. One upstream cfg(test) unit test intentionally constructs invalid UTF-8 with String::from_utf8_unchecked; it is not compiled into dependency artifacts and does not affect this deployability certification."
+
+[[audits.zlib-rs]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.5.1"
+notes = "AI-assisted full source audit. Reviewed inflate/deflate state machines, Huffman tables, window/pending buffers, checksums and SIMD dispatch, allocation callbacks, weak slices, and C-facing support. Pointer/slice construction follows validated lengths and allocation provenance, vector paths are feature-gated, overlap-sensitive copies are deliberate, and public safe paths retain initialization/bounds invariants."
+
+[[audits.zopfli]]
+who = "Richard Neumann <neumann@paulmann.de>"
+criteria = "safe-to-deploy"
+version = "0.8.3"
+notes = "AI-assisted full source audit. Reviewed compression algorithms, bounds handling, command-line file behavior, and large hash-state allocation. Raw allocation uses the exact layout, initializes every field without intermediate references, handles allocation failure, and transfers ownership once to Box."
